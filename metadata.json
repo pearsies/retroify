@@ -1,0 +1,7 @@
+{
+  "name": "RetroVid Converter",
+  "description": "In-browser video converter optimizing modern video formats for classic Nokia, Sony Walkman NW-A25, iPod, and retro portable media players with custom resolution, bitrate, and framerate presets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
