@@ -13,6 +13,14 @@
     font-weight: 300;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #121212;
+      color: #eeeeee;
+    }
   }
 
   button, input, select, textarea {
