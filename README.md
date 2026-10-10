@@ -2,6 +2,8 @@
 
 convert your videos into formats playable on retro devices. all in your browser, completely offline, nothing leaves your device.
 
+live repo: https://github.com/pearsies/retroify
+
 trying to watch modern 4k 60fps videos on an old ipod classic, psp, or nokia phone usually means dealing with weird ffmpeg commands that fail because of unsupported baseline profiles, wrong audio sample rates, or missing fast-start moov atoms.
 
 retroify fixes this. drop your video in, pick your device, and hit convert. everything is transcoded client-side using hardware-accelerated webcodecs right inside your browser.
@@ -31,6 +33,7 @@ retroify fixes this. drop your video in, pick your device, and hit convert. ever
 - built-in trimming: set custom start and end points directly in the ui.
 - audio boost: optional +3db / +6db gain for quiet vintage phone speakers.
 - transfer guides: built-in instructions showing you the exact usb folder paths and quirks for each device.
+- system dark mode: automatically adapts to your system theme without extra clutter or toggles.
 
 ## tech stack
 
@@ -47,7 +50,7 @@ make sure you have node.js (v18+) installed.
 
 ```bash
 # clone the repo
-git clone https://github.com/your-username/retroify.git
+git clone https://github.com/pearsies/retroify.git
 
 # hop into the directory
 cd retroify
