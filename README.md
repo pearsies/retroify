@@ -27,10 +27,13 @@ retroify fixes this. drop your video in, pick your device, and hit convert. ever
 
 - 100% in-browser processing: zero server uploads, total privacy, works offline.
 - hardware accelerated: uses the modern webcodecs api (`videodecoder` + `videoencoder`) for speeds up to 10x-20x realtime.
-- battery & memory friendly: pipelined streaming chunks with bounded queue backpressure so long 2-hour movies won't crash your browser tab.
+- multi-file batch queue: drop multiple files at once, queue up entire show seasons or albums, and batch download as a zip archive.
+- visual timeline scrubber: dual-handle timeline slider with live video seek preview for quick, intuitive trimming.
+- hardcoded subtitles: drop an `.srt` or `.vtt` file to cleanly bake subtitles into the video frames so retro devices without soft-sub support can display them.
+- metadata & album artwork injector: writes mp4 id3 atoms (`©nam`, `©art`, `©alb`, `©day`, and `covr`) so click wheels, xmb, and walkmans show real track titles and album art.
 - fast-start mp4: places the moov atom at the front of the file so retro firmware decoders can start playing instantly without buffering into ram.
 - smart cadence skipping: drops extra source frames cleanly without drifting presentation timestamps (pts) out of sync with audio.
-- built-in trimming: set custom start and end points directly in the ui.
+- battery & memory friendly: pipelined streaming chunks with bounded queue backpressure so long 2-hour movies won't crash your browser tab.
 - audio boost: optional +3db / +6db gain for quiet vintage phone speakers.
 - transfer guides: built-in instructions showing you the exact usb folder paths and quirks for each device.
 - system dark mode: automatically adapts to your system theme without extra clutter or toggles.
@@ -42,6 +45,7 @@ retroify fixes this. drop your video in, pick your device, and hit convert. ever
 - webcodecs api (hardware accelerated decoding & encoding)
 - mp4box.js (fast client-side demuxing)
 - mp4-muxer (clean iso bmff fast-start multiplexing)
+- jszip (client-side batch zip creation)
 - satoshi light typography
 
 ## getting started

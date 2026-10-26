@@ -17,6 +17,8 @@ import {
 } from '../types/converter';
 import { FastMP4Demuxer } from './mp4Demuxer';
 import { BackgroundKeepalive, fastYield } from './backgroundKeepalive';
+import { renderSubtitlesToCanvas } from './subtitles';
+import { injectMp4Metadata } from './mp4Metadata';
 
 export class VideoTranscoder {
   private isCancelled = false;
@@ -470,7 +472,8 @@ export class VideoTranscoder {
           lastOutputTimestampUs = normalizedTimeUs;
 
           // Render frame onto target canvas (hardware GPU texture)
-          this.drawVideoFrame(ctx, videoFrame, targetWidth, targetHeight, options);
+          const currentFrameSec = clipStart + normalizedTimeUs / 1_000_000;
+          this.drawVideoFrame(ctx, videoFrame, targetWidth, targetHeight, options, currentFrameSec);
 
           // Encode scaled frame with its true presentation timestamp matching audio timeline
           const outFrame = new VideoFrame(canvas, {
@@ -636,9 +639,15 @@ export class VideoTranscoder {
       .replace(/[^a-zA-Z0-9_-]/g, '_');
     const ext = options.container === '3gp' ? '3gp' : 'mp4';
     const finalFileName = `${baseName}_${preset.category.toUpperCase()}_${targetWidth}x${targetHeight}.${ext}`;
-    const blob = new Blob([finalBuffer], {
-      type: options.container === '3gp' ? 'video/3gpp' : 'video/mp4',
-    });
+    
+    let blob: Blob;
+    if (options.container === 'mp4' && options.tags) {
+      blob = await injectMp4Metadata(finalBuffer, options.tags);
+    } else {
+      blob = new Blob([finalBuffer], {
+        type: options.container === '3gp' ? 'video/3gpp' : 'video/mp4',
+      });
+    }
     const outputUrl = URL.createObjectURL(blob);
 
     onProgress({
@@ -893,7 +902,7 @@ export class VideoTranscoder {
       const targetSec = clipStart + frameIndex * frameIntervalSec;
       await this.seekVideoTo(videoEl, Math.min(targetSec, clipEnd - 0.001));
 
-      this.drawVideoElement(ctx, videoEl, targetWidth, targetHeight, options);
+      this.drawVideoElement(ctx, videoEl, targetWidth, targetHeight, options, targetSec);
 
       const timestampUs = Math.round(frameIndex * frameIntervalSec * 1_000_000);
       const isKey = frameIndex % Math.max(1, targetFps * 2) === 0;
@@ -970,9 +979,15 @@ export class VideoTranscoder {
       .replace(/[^a-zA-Z0-9_-]/g, '_');
     const ext = options.container === '3gp' ? '3gp' : 'mp4';
     const finalFileName = `${baseName}_${preset.category.toUpperCase()}_${targetWidth}x${targetHeight}.${ext}`;
-    const blob = new Blob([finalBuffer], {
-      type: options.container === '3gp' ? 'video/3gpp' : 'video/mp4',
-    });
+    
+    let blob: Blob;
+    if (options.container === 'mp4' && options.tags) {
+      blob = await injectMp4Metadata(finalBuffer, options.tags);
+    } else {
+      blob = new Blob([finalBuffer], {
+        type: options.container === '3gp' ? 'video/3gpp' : 'video/mp4',
+      });
+    }
     const outputUrl = URL.createObjectURL(blob);
 
     onProgress({
@@ -1033,7 +1048,8 @@ export class VideoTranscoder {
     frame: VideoFrame,
     targetWidth: number,
     targetHeight: number,
-    options: EncodingOptions
+    options: EncodingOptions,
+    currentSeconds?: number
   ) {
     const srcW = frame.displayWidth || 640;
     const srcH = frame.displayHeight || 480;
@@ -1081,6 +1097,10 @@ export class VideoTranscoder {
     }
 
     this.applyRetroFilters(ctx, targetWidth, targetHeight, options.retroFilter);
+
+    if (currentSeconds !== undefined && options.subtitles && options.subtitles.length > 0) {
+      renderSubtitlesToCanvas(ctx, currentSeconds, options.subtitles, targetWidth, targetHeight);
+    }
   }
 
   private drawVideoElement(
@@ -1088,7 +1108,8 @@ export class VideoTranscoder {
     video: HTMLVideoElement,
     targetWidth: number,
     targetHeight: number,
-    options: EncodingOptions
+    options: EncodingOptions,
+    currentSeconds?: number
   ) {
     const srcW = video.videoWidth || 640;
     const srcH = video.videoHeight || 480;
@@ -1136,6 +1157,10 @@ export class VideoTranscoder {
     }
 
     this.applyRetroFilters(ctx, targetWidth, targetHeight, options.retroFilter);
+
+    if (currentSeconds !== undefined && options.subtitles && options.subtitles.length > 0) {
+      renderSubtitlesToCanvas(ctx, currentSeconds, options.subtitles, targetWidth, targetHeight);
+    }
   }
 
   private applyRetroFilters(

@@ -1,5 +1,5 @@
 /**
- * Type definitions for RetroVid Converter
+ * Type definitions for RetroVid / Retroify Converter
  */
 
 export type DeviceCategory = 'walkman' | 'nokia' | 'ipod' | 'psp' | 'nintendo' | 'custom';
@@ -46,6 +46,21 @@ export interface DevicePreset {
 export type PerformanceEngine = 'turbo' | 'standard';
 export type AudioTranscodeMode = 'passthrough' | 'transcode';
 
+export interface SubtitleCue {
+  start: number; // in seconds
+  end: number; // in seconds
+  text: string;
+}
+
+export interface VideoMetadataTags {
+  title?: string;
+  artist?: string;
+  album?: string;
+  year?: string;
+  coverImage?: Blob | Uint8Array | null;
+  coverImageUrl?: string;
+}
+
 export interface EncodingOptions {
   width: number;
   height: number;
@@ -60,16 +75,21 @@ export interface EncodingOptions {
   container: 'mp4' | '3gp';
   avcProfile: AvcProfile;
   outputFilename: string;
-  // Performance & Trimming for long 2hr videos
+  // Performance & Trimming for long videos
   startTime: number; // in seconds
   endTime: number; // in seconds (0 = full video)
   engineMode: PerformanceEngine;
   audioMode: AudioTranscodeMode;
   smartCadenceSkip: boolean; // skip non-cadence source frames
   hardwareAcceleration: 'prefer-hardware' | 'prefer-software';
+  // Subtitles & Metadata
+  subtitles?: SubtitleCue[];
+  subtitleFileName?: string;
+  tags?: VideoMetadataTags;
 }
 
 export interface VideoMetadata {
+  id: string;
   name: string;
   size: number;
   duration: number;
@@ -78,6 +98,15 @@ export interface VideoMetadata {
   url: string;
   file?: File;
   type: string;
+  thumbnailUrl?: string;
+  subtitles?: SubtitleCue[];
+  subtitleFileName?: string;
+  tags?: VideoMetadataTags;
+  preset?: DevicePreset;
+  encodingOptions?: EncodingOptions;
+  status?: 'idle' | 'converting' | 'done' | 'error';
+  output?: ConvertedOutput;
+  error?: string;
 }
 
 export interface ConversionProgress {
@@ -89,9 +118,20 @@ export interface ConversionProgress {
   elapsedSeconds: number;
   remainingSeconds: number;
   estimatedSizeBytes: number;
-  status: 'idle' | 'preparing' | 'demuxing' | 'extracting-audio' | 'encoding-video' | 'muxing' | 'completed' | 'error' | 'cancelled';
+  status:
+    | 'idle'
+    | 'preparing'
+    | 'demuxing'
+    | 'extracting-audio'
+    | 'encoding-video'
+    | 'muxing'
+    | 'completed'
+    | 'error'
+    | 'cancelled';
   statusMessage: string;
   engineName: string;
+  batchIndex?: number;
+  batchTotal?: number;
 }
 
 export interface ConvertedOutput {
